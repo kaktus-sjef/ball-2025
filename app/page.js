@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
-import { firebaseConfig } from '../../lib/firebaseConfig'; // ← oppdater stien hvis den er annerledes
+import { firebaseConfig } from '../../lib/firebase'; // ← oppdater stien hvis den er annerledes
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
