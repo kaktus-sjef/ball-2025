@@ -1,44 +1,49 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { db, collection, getDocs } from '@/lib/firebase';
 
 export default function MainPage() {
-  const [images, setImages] = useState([]);
+  const [authorized, setAuthorized] = useState(false);
+  const [inputPassword, setInputPassword] = useState('');
+
+  const CORRECT_PASSWORD = 'ball2025';
 
   useEffect(() => {
-    async function fetchImages() {
-      const querySnapshot = await getDocs(collection(db, 'images'));
-      const imgs = [];
-      querySnapshot.forEach((doc) => {
-        imgs.push(doc.data().url);
-      });
-      setImages(imgs.reverse()); // nyeste først
-    }
-
-    fetchImages();
+    const saved = localStorage.getItem('mainAuthorized');
+    if (saved === 'true') setAuthorized(true);
   }, []);
 
+  const handleLogin = () => {
+    if (inputPassword === CORRECT_PASSWORD) {
+      localStorage.setItem('mainAuthorized', 'true');
+      setAuthorized(true);
+    } else {
+      alert('Feil passord!');
+    }
+  };
+
+  if (!authorized) {
+    return (
+      <div className="p-8">
+        <h1 className="text-xl font-bold mb-4">Skriv inn passord for å se galleriet</h1>
+        <input
+          type="password"
+          className="border p-2 rounded"
+          value={inputPassword}
+          onChange={(e) => setInputPassword(e.target.value)}
+        />
+        <br /><br />
+        <button onClick={handleLogin} className="bg-blue-500 text-white px-4 py-2 rounded">
+          Logg inn
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <main className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Bildegalleri</h1>
-      {images.length === 0 ? (
-        <p className="text-gray-600">Ingen bilder ennå. Last opp via <a className="text-blue-600 underline" href="/admin">/admin</a></p>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {images.map((url, idx) => (
-            <div key={idx} className="border rounded shadow hover:scale-105 transition-transform">
-              <img src={url} alt={`Bilde ${idx}`} className="w-full h-auto rounded-t" />
-              <a
-                href={url}
-                download={`bilde-${idx}.jpg`}
-                className="block text-center bg-green-500 text-white py-2 rounded-b hover:bg-green-600"
-              >
-                Last ned
-              </a>
-            </div>
-          ))}
-        </div>
-      )}
-    </main>
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-6">🎉 Galleriet</h1>
+      {/* Her kommer galleriet ditt med bilder fra Firestore eller opplasting */}
+      <p>Her vises bildene etter opplasting</p>
+    </div>
   );
 }
