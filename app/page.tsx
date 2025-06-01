@@ -1,15 +1,24 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import { db, collection, getDocs } from '../lib/firebase';
 import Modal from 'react-modal';
+import '../styles/main.css';
+
 
 export default function MainPage() {
   const [authorized, setAuthorized] = useState(false);
   const [inputPassword, setInputPassword] = useState('');
-  const [images, setImages] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [images, setImages] = useState<string[]>([]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const CORRECT_PASSWORD = 'ball2025';
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      Modal.setAppElement(document.body);
+    }
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem('mainAuthorized');
@@ -38,16 +47,18 @@ export default function MainPage() {
 
   if (!authorized) {
     return (
-      <div className="p-8">
-        <h1 className="text-xl font-bold mb-4">Skriv inn passord for å se galleriet</h1>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <h1 className="text-2xl font-bold mb-4">Skriv inn passord for å se galleriet</h1>
         <input
           type="password"
-          className="border p-2 rounded"
+          className="border p-2 rounded text-center"
           value={inputPassword}
           onChange={(e) => setInputPassword(e.target.value)}
         />
-        <br /><br />
-        <button onClick={handleLogin} className="bg-blue-500 text-white px-4 py-2 rounded">
+        <button
+          onClick={handleLogin}
+          className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+        >
           Logg inn
         </button>
       </div>
@@ -55,27 +66,44 @@ export default function MainPage() {
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
-      {images.map((url, i) => (
-        <div key={i} className="relative">
-          <img
-            src={url}
-            alt={`bilde-${i}`}
-            onClick={() => setSelectedImage(url)}
-            className="cursor-pointer w-full rounded shadow hover:scale-105 transition"
-          />
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-blue-600 py-6 shadow-md">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-blue text-4xl font-extrabold tracking-wider">BALL-2025</h1>
         </div>
-      ))}
+      </header>
+
+      {/* Gallery */}
+      <main className="p-6 max-w-6xl mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+          {images.map((url, i) => (
+            <div
+              key={i}
+              className="bg-white aspect-square overflow-hidden rounded-lg shadow hover:scale-105 transition-transform duration-200"
+            >
+              <img
+                src={url}
+                alt={`bilde-${i}`}
+                onClick={() => setSelectedImage(url)}
+                className="object-cover w-full h-full cursor-pointer"
+              />
+            </div>
+          ))}
+        </div>
+      </main>
+
+      {/* Modal */}
       <Modal
         isOpen={!!selectedImage}
         onRequestClose={() => setSelectedImage(null)}
         className="max-w-3xl mx-auto mt-20 bg-white p-4 rounded shadow"
         overlayClassName="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-start z-50"
       >
-        <img src={selectedImage} alt="forhåndsvisning" className="w-full rounded" />
+        <img src={selectedImage ?? ''} alt="forhåndsvisning" className="w-full rounded" />
         <div className="flex justify-end mt-4">
           <a
-            href={selectedImage}
+            href={selectedImage ?? ''}
             download
             className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
           >

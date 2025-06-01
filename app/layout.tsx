@@ -1,22 +1,17 @@
 'use client';
-
-import { useEffect, type ReactNode } from 'react';
+import React, { useEffect } from 'react';
 import Modal from 'react-modal';
 
-type RootLayoutProps = {
-  children: ReactNode;
-};
-
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      Modal.setAppElement('#__next'); // trygg initialisering
+      Modal.setAppElement('body'); // <== IKKE '#__next'
     }
   }, []);
 
   return (
     <html lang="en">
-      <body id="__next">{children}</body>
+      <body>{children}</body>
     </html>
   );
 }
