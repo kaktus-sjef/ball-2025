@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useEffect, useState } from 'react';
 import { db, collection, getDocs } from '../lib/firebase';
 import Modal from 'react-modal';
@@ -13,7 +13,9 @@ export default function MainPage() {
 
   // ✅ Sett Modal-element kun på klienten
   useEffect(() => {
-    Modal.setAppElement('#__next');
+    if (typeof window !== 'undefined') {
+      Modal.setAppElement('#__next');
+    }
   }, []);
 
   useEffect(() => {
