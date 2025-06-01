@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
-import { db, collection, getDocs } from '../lib/firebase'; // ← oppdater stien hvis den er annerledes
+import { db, collection, getDocs } from '../lib/firebase';
 import Modal from 'react-modal';
 
 Modal.setAppElement('#__next');
