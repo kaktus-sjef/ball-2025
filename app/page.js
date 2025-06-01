@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+
 import { initializeApp } from 'firebase/app';
-import { db } from '../lib/firebase';
+import { db, collection, getDocs } from '../lib/firebase';
+
 import Modal from 'react-modal';
 
 Modal.setAppElement('#__next');
