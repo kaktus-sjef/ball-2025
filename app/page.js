@@ -11,13 +11,6 @@ export default function MainPage() {
 
   const CORRECT_PASSWORD = 'ball2025';
 
-  // ✅ Sett Modal-element kun på klienten
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      Modal.setAppElement('#__next');
-    }
-  }, []);
-
   useEffect(() => {
     const saved = localStorage.getItem('mainAuthorized');
     if (saved === 'true') setAuthorized(true);
@@ -62,7 +55,7 @@ export default function MainPage() {
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
       {images.map((url, i) => (
         <div key={i} className="relative">
           <img
