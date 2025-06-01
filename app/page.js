@@ -1,7 +1,7 @@
-'use client';
+'use client'
 import { useEffect, useState } from 'react';
-import Modal from 'react-modal';
 import { db, collection, getDocs } from '../lib/firebase';
+import Modal from 'react-modal';
 
 export default function MainPage() {
   const [authorized, setAuthorized] = useState(false);
@@ -11,11 +11,9 @@ export default function MainPage() {
 
   const CORRECT_PASSWORD = 'ball2025';
 
-  // ✅ SIKKER INIT av Modal etter at komponenten er på klienten
+  // ✅ Sett Modal-element kun på klienten
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      Modal.setAppElement('#__next');
-    }
+    Modal.setAppElement('#__next');
   }, []);
 
   useEffect(() => {
@@ -73,7 +71,6 @@ export default function MainPage() {
           />
         </div>
       ))}
-
       <Modal
         isOpen={!!selectedImage}
         onRequestClose={() => setSelectedImage(null)}
