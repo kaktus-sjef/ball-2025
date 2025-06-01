@@ -1,14 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
-
-import { initializeApp } from 'firebase/app';
 import { db, collection, getDocs } from '../lib/firebase';
-
 import Modal from 'react-modal';
 
 Modal.setAppElement('#__next');
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+
+
 
 export default function MainPage() {
   const [authorized, setAuthorized] = useState(false);
