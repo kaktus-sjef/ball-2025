@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react';
 import { db, collection, getDocs } from '../lib/firebase';
 import Modal from 'react-modal';
 
-Modal.setAppElement('#__next');
+if (typeof window !== 'undefined') {
+  Modal.setAppElement('#__next');
+}
 
 
 
