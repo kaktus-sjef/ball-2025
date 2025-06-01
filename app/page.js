@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { db, collection, getDocs } from '../lib/firebase';
 import Modal from 'react-modal';
+import { db, collection, getDocs } from '../lib/firebase';
 
 export default function MainPage() {
   const [authorized, setAuthorized] = useState(false);
@@ -11,9 +11,11 @@ export default function MainPage() {
 
   const CORRECT_PASSWORD = 'ball2025';
 
-  // 👇 Flytt Modal.setAppElement inn her
+  // ✅ SIKKER INIT av Modal etter at komponenten er på klienten
   useEffect(() => {
-    Modal.setAppElement('#__next');
+    if (typeof window !== 'undefined') {
+      Modal.setAppElement('#__next');
+    }
   }, []);
 
   useEffect(() => {
@@ -41,7 +43,6 @@ export default function MainPage() {
     }
   };
 
-  // 👇 Login-skjema
   if (!authorized) {
     return (
       <div className="p-8">
