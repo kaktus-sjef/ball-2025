@@ -1,30 +1,32 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function AdminPage() {
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
-
   const [authorized, setAuthorized] = useState(
     typeof document !== 'undefined' && document.cookie.includes('admin_password=')
   );
 
   const handleLogin = async () => {
-    const res = await fetch('/api/admin-login', {
-      method: 'POST',
-      body: JSON.stringify({ password }),
-    });
+    try {
+      const res = await fetch('/api/admin-login', {
+        method: 'POST',
+        body: JSON.stringify({ password }),
+      });
 
-    if (res.ok) {
-      document.cookie = `admin_password=${password}; path=/`;
-      setAuthorized(true);
-    } else {
-      setError('Feil passord');
+      if (res.ok) {
+        document.cookie = `admin_password=${password}; path=/`;
+        setAuthorized(true);
+        setError('');
+      } else {
+        setError('Feil passord');
+      }
+    } catch (err) {
+      setError('Nettverksfeil eller serverfeil');
     }
   };
 
@@ -42,20 +44,19 @@ export default function AdminPage() {
 
       if (!res.ok) {
         const errorText = await res.text();
-        throw new Error(`Feil under opplasting: ${errorText}`);
+        throw new Error(errorText);
       }
 
       const data = await res.json();
       setUrl(data.url);
       localStorage.setItem('lastUploadedUrl', data.url);
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         alert('Opplasting feilet: ' + err.message);
       } else {
-        alert('Ukjent feil under opplasting');
+        alert('En ukjent feil oppstod under opplasting.');
       }
     }
-    
   };
 
   if (!authorized) {
