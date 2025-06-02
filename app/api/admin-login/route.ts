@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   const password = body.password;
 
   if (password === process.env.ADMIN_PAGE_PASSWORD) {
-    const response = NextResponse.redirect(new URL('/admin', request.url)); // 🚀 Redirect til admin etter login
+    const response = NextResponse.json({ success: true });
 
     response.cookies.set('admin_password', password, {
       path: '/',
@@ -19,4 +19,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 }
-
