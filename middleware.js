@@ -21,7 +21,7 @@ export function middleware(request) {
   if (pathname.startsWith('/admin')) {
     const cookie = cookies.get('admin_password')?.value;
     if (cookie !== adminPassword) {
-      return NextResponse.redirect(new URL('/admin-login', request.url));
+      return NextResponse.redirect(new URL('/admin', request.url));
     }
   }
 

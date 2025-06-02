@@ -1,27 +1,30 @@
 'use client';
-import { useEffect, useState } from 'react';
 
-const ADMIN_PASSWORD = 'Maja_220623'; // 🔐 Ditt admin-passord
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function AdminPage() {
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState('');
-  const [authorized, setAuthorized] = useState(false);
-  const [inputPassword, setInputPassword] = useState('');
-  const [ready, setReady] = useState(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const router = useRouter();
 
-  useEffect(() => {
-    const saved = localStorage.getItem('adminAccess');
-    if (saved === 'true') setAuthorized(true);
-    setReady(true);
-  }, []);
+  const [authorized, setAuthorized] = useState(
+    typeof document !== 'undefined' && document.cookie.includes('admin_password=')
+  );
 
-  const handleLogin = () => {
-    if (inputPassword === ADMIN_PASSWORD) {
-      localStorage.setItem('adminAccess', 'true');
+  const handleLogin = async () => {
+    const res = await fetch('/api/admin-login', {
+      method: 'POST',
+      body: JSON.stringify({ password }),
+    });
+
+    if (res.ok) {
+      document.cookie = `admin_password=${password}; path=/`;
       setAuthorized(true);
     } else {
-      alert('Feil passord');
+      setError('Feil passord');
     }
   };
 
@@ -46,11 +49,14 @@ export default function AdminPage() {
       setUrl(data.url);
       localStorage.setItem('lastUploadedUrl', data.url);
     } catch (err) {
-      alert('Opplasting feilet: ' + err.message);
+      if (err instanceof Error) {
+        alert('Opplasting feilet: ' + err.message);
+      } else {
+        alert('Ukjent feil under opplasting');
+      }
     }
+    
   };
-
-  if (!ready) return null;
 
   if (!authorized) {
     return (
@@ -58,8 +64,8 @@ export default function AdminPage() {
         <h1 className="text-xl font-bold mb-4">Logg inn som admin</h1>
         <input
           type="password"
-          value={inputPassword}
-          onChange={(e) => setInputPassword(e.target.value)}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           className="border px-3 py-2 rounded mb-4 w-full"
           placeholder="Skriv inn passord"
         />
@@ -69,6 +75,7 @@ export default function AdminPage() {
         >
           Logg inn
         </button>
+        {error && <p className="text-red-500 mt-2">{error}</p>}
       </div>
     );
   }
@@ -79,7 +86,7 @@ export default function AdminPage() {
       <input
         type="file"
         accept="image/*"
-        onChange={(e) => setFile(e.target.files[0])}
+        onChange={(e) => setFile(e.target.files?.[0] || null)}
         className="mb-4"
       />
       <br />
