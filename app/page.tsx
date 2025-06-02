@@ -4,15 +4,12 @@ import { useEffect, useState } from 'react';
 import { db, collection, getDocs } from '../lib/firebase';
 import Modal from 'react-modal';
 import '../styles/main.css';
-
+import { useRouter } from 'next/navigation';
 
 export default function MainPage() {
-  const [authorized, setAuthorized] = useState(false);
-  const [inputPassword, setInputPassword] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
-  const CORRECT_PASSWORD = 'ball2025';
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -22,48 +19,19 @@ export default function MainPage() {
 
   useEffect(() => {
     const saved = localStorage.getItem('mainAuthorized');
-    if (saved === 'true') setAuthorized(true);
-  }, []);
+    if (saved !== 'true') {
+      router.push('/login');
+    }
+  }, [router]);
 
   useEffect(() => {
-    if (authorized) {
-      const fetchImages = async () => {
-        const querySnapshot = await getDocs(collection(db, 'images'));
-        const imageList = querySnapshot.docs.map((doc) => doc.data().url);
-        setImages(imageList);
-      };
-      fetchImages();
-    }
-  }, [authorized]);
-
-  const handleLogin = () => {
-    if (inputPassword === CORRECT_PASSWORD) {
-      localStorage.setItem('mainAuthorized', 'true');
-      setAuthorized(true);
-    } else {
-      alert('Feil passord!');
-    }
-  };
-
-  if (!authorized) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-        <h1 className="text-2xl font-bold mb-4">Skriv inn passord for å se galleriet</h1>
-        <input
-          type="password"
-          className="border p-2 rounded text-center"
-          value={inputPassword}
-          onChange={(e) => setInputPassword(e.target.value)}
-        />
-        <button
-          onClick={handleLogin}
-          className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
-          Logg inn
-        </button>
-      </div>
-    );
-  }
+    const fetchImages = async () => {
+      const querySnapshot = await getDocs(collection(db, 'images'));
+      const imageList = querySnapshot.docs.map((doc) => doc.data().url);
+      setImages(imageList);
+    };
+    fetchImages();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
