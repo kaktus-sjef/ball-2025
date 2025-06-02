@@ -25,7 +25,7 @@ export default function AdminPage() {
       } else {
         setError('Feil passord');
       }
-    } catch (err) {
+    } catch {
       setError('Nettverksfeil eller serverfeil');
     }
   };
