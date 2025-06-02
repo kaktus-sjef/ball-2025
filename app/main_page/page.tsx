@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { db, collection, getDocs } from '../../lib/firebase';
 import Modal from 'react-modal';
 import '../../styles/main.css';
+import png from '../flourish.png';
 import { useRouter } from 'next/navigation';
 
 export default function MainPage() {
@@ -37,13 +38,19 @@ export default function MainPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-blue-600 py-6 shadow-md">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-blue text-4xl font-extrabold tracking-wider">BALL-2025</h1>
-        </div>
-      </header>
+  <div className="max-w-4xl mx-auto text-center">
+    <div className="header-container">
+      <img src="/flourish_left.png" alt="left" />
+      <h1 className="header-title">Ball 2025</h1>
+      <img src="/flourish_right.png" alt="right" style={{ transform: 'scaleX(-1)' }} />
+    </div>
+  </div>
+</header>
+
 
       {/* Gallery */}
       <main className="p-6 max-w-6xl mx-auto">
+        <div className="gallery">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
           {images.map((url, i) => (
             <div
@@ -58,6 +65,7 @@ export default function MainPage() {
               />
             </div>
           ))}
+        </div>
         </div>
       </main>
 

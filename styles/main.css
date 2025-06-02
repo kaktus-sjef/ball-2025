@@ -1,34 +1,109 @@
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f2f2f2;
-  }
-  
-  header {
-    text-align: center;
-    padding: 2rem;
-    background-color: #1f2937;
-    color: white;
-    font-size: 2rem;
-  }
-  
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-    padding: 1rem;
-  }
-  
-  .grid img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-  }
-  
-  .grid img:hover {
-    transform: scale(1.05);
-  }
-  
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #111; /* mørk bakgrunn */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='%23FFD700' fill-opacity='0.15'%3E%3Cpolygon points='8 4 12 6 8 8 6 12 4 8 0 6 4 4 6 0 8 4'/%3E%3Cpolygon transform='translate(24,24)' points='8 4 12 6 8 8 6 12 4 8 0 6 4 4 6 0 8 4'/%3E%3C/g%3E%3C/svg%3E");
+  color: #f9c937; /* Gull tekst */
+}
+
+header {
+  text-align: center;
+  padding: 1rem;
+  margin-bottom: 40px;
+  background: linear-gradient(to right, #111, #000);
+  color: white;
+  font-size: 2.5rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-bottom: 2px solid #f9c93744;
+  box-shadow: 0 10px 20px rgba(249, 201, 55, 0.3);
+  position: relative;
+  z-index: 10; /* 👈 Sørger for at header ligger over grid */
+}
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.header-container img {
+  height: 60px;
+  filter: drop-shadow(0 0 4px #f9c937aa);
+  transition: transform 0.3s ease;
+}
+
+.header-container img:hover {
+  transform: scale(1.08);
+}
+
+.header-title {
+  font-family: "Great Vibes", cursive;
+  font-size: 5rem;
+  font-weight: 400;
+  color: #f9c937;
+  text-shadow:
+    -1px -1px 0 #000,
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000;
+  margin: 0;
+}
+
+
+.grid {
+  display: grid;
+  background-color: #000;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 10px;
+  box-shadow: 0px 5px 10px 10px rgba(249, 201, 55, 0.2);
+
+}
+
+.grid img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 2px solid #f9c93733;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.grid img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px #f9c93799;
+}
+
+
+
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.grid img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 2px solid #f9c93733;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.grid img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px #f9c93799;
+}

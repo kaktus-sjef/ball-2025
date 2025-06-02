@@ -1,0 +1,91 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #000; /* Svart bakgrunn */
+    margin: 0;
+    padding: 0;
+    color: #f9c937; /* Gull tekstfarge */
+  }
+  
+  .login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at top, #111 0%, #000 100%);
+  }
+  
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #111;
+    padding: 2rem;
+    width: 100%;
+    max-width: 340px;
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(249, 201, 55, 0.3); /* Gullglow */
+    border: 1px solid #f9c93755;
+    animation: float 4s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+  
+  .login-form h2 {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .login-form input[type="password"] {
+    width: 80%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid #f9c937aa;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    text-align: center;
+    background-color: #000;
+    color: #f9c937;
+    transition: border-color 0.3s ease;
+  }
+  
+  .login-form input[type="password"]:focus {
+    outline: none;
+    border-color: #ffd700;
+    box-shadow: 0 0 5px #f9c937aa;
+  }
+  
+  .login-form button {
+    width: 80%;
+    padding: 0.75rem;
+    background: /*linear-gradient(to right, #fcd34d, #facc15)*/none;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    border: 1px solid #f9c937aa;;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .login-form button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px #facc15;
+  }
+  
+  .login-form .error-message {
+    color: #ff4d4d;
+    text-align: center;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
