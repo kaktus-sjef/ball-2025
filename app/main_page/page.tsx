@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { db, collection, getDocs } from '../../lib/firebase';
 import Modal from 'react-modal';
 import '../../styles/main.css';
-import png from '../flourish.png';
 import { useRouter } from 'next/navigation';
 
 export default function MainPage() {
