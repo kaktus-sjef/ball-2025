@@ -11,23 +11,26 @@ export function middleware(request) {
 
   // Beskytt /main
   if (pathname.startsWith('/main')) {
-    const cookie = cookies.get('main_password')?.value;
+    const cookie = request.cookies.get('main_password');
     if (cookie !== mainPassword) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
 
   // Beskytt /admin
-  if (pathname.startsWith('/admin')) {
-    const cookie = cookies.get('admin_password')?.value;
+  if (pathname.startsWith('/admin') && pathname !== '/admin_login') {
+    const cookie = request.cookies.get('admin_password');
+
     if (cookie !== adminPassword) {
-      return NextResponse.redirect(new URL('/admin', request.url));
+      return NextResponse.redirect(new URL('/admin_login', request.url));
     }
   }
+  
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/main', '/admin'],
-};
+    matcher: ['/main/:path*', '/admin/:path*'],
+  };
+  
