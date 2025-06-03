@@ -5,7 +5,7 @@ import { db, collection, getDocs } from '../../lib/firebase';
 import Modal from 'react-modal';
 import '../../styles/main.css';
 import { useRouter } from 'next/navigation';
-import { FaChevronLeft, FaChevronRight, FaTimes, FaDownload } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight} from 'react-icons/fa';
 
 export default function MainPage() {
   const [images, setImages] = useState<string[]>([]);
