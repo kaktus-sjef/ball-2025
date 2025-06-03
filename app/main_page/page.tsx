@@ -5,11 +5,20 @@ import { db, collection, getDocs } from '../../lib/firebase';
 import Modal from 'react-modal';
 import '../../styles/main.css';
 import { useRouter } from 'next/navigation';
+import { FaChevronLeft, FaChevronRight, FaTimes, FaDownload } from 'react-icons/fa';
 
 export default function MainPage() {
   const [images, setImages] = useState<string[]>([]);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
+  const toggleDropdown = () => {
+    setMenuOpen(!menuOpen);
+  };
+  const goToAdmin = () => {
+    router.push('/admin_login');
+    setMenuOpen(false); // lukk meny
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -33,15 +42,72 @@ export default function MainPage() {
     fetchImages();
   }, []);
 
+  useEffect(() => {
+    if (selectedIndex !== null) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+  }, [selectedIndex]);
+  
+
+  const selectedImage = selectedIndex !== null ? images[selectedIndex] : null;
+
+  const handleDownload = () => {
+    if (!selectedImage) return;
+    const link = document.createElement('a');
+    link.href = selectedImage;
+    link.download = selectedImage.split('/').pop() || 'bilde.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-blue-600 py-6 shadow-md">
-  <div className="max-w-4xl mx-auto text-center">
-    <div className="header-container">
-      <img src="/flourish_left.png" alt="left" />
-      <h1 className="header-title">Ball 2025</h1>
-      <img src="/flourish_right.png" alt="right" style={{ transform: 'scaleX(-1)' }} />
+      <header className="site-header">
+  <div className="header-inner">
+    <div className="dropdown">
+      <button
+        className="clean-button"
+        onClick={toggleDropdown}
+        aria-label="Meny"
+      >
+        <svg
+          className={`gold-icon-static ${menuOpen ? 'animate-middle' : ''}`}
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          width="50"
+          height="50"
+        >
+          <line x1="3" y1="6" x2="21" y2="6" stroke="#d3c35e" strokeWidth="2" />
+          <line
+            x1="3"
+            y1="12"
+            x2="21"
+            y2="12"
+            stroke="#d3c35e"
+            strokeWidth="2"
+            className="middle-line"
+          />
+          <line x1="3" y1="18" x2="21" y2="18" stroke="#d3c35e" strokeWidth="2" />
+        </svg>
+      </button>
+      {menuOpen && (
+        <div className="dropdown-content">
+          <button onClick={goToAdmin}>Admin-side</button>
+        </div>
+      )}
+    </div>
+
+    <div className="header-center">
+      <div className="header-container">
+        <img src="/flourish_left.png" alt="left" />
+        <h1 className="header-title">Ball 2025</h1>
+        <img src="/flourish_right.png" alt="right" />
+      </div>
     </div>
   </div>
 </header>
@@ -50,48 +116,89 @@ export default function MainPage() {
       {/* Gallery */}
       <main className="p-6 max-w-6xl mx-auto">
         <div className="gallery">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-          {images.map((url, i) => (
-            <div
-              key={i}
-              className="bg-white aspect-square overflow-hidden rounded-lg shadow hover:scale-105 transition-transform duration-200"
-            >
-              <img
-                src={url}
-                alt={`bilde-${i}`}
-                onClick={() => setSelectedImage(url)}
-                className="object-cover w-full h-full cursor-pointer"
-              />
-            </div>
-          ))}
-        </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            {images.map((url, i) => (
+              <div
+                key={i}
+                className="bg-white aspect-square overflow-hidden rounded-lg shadow hover:scale-105 transition-transform duration-200"
+              >
+                <img
+                  src={url}
+                  alt={`bilde-${i}`}
+                  onClick={() => setSelectedIndex(i)}
+                  className="object-cover w-full h-full cursor-pointer"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </main>
 
       {/* Modal */}
       <Modal
-        isOpen={!!selectedImage}
-        onRequestClose={() => setSelectedImage(null)}
-        className="max-w-3xl mx-auto mt-20 bg-white p-4 rounded shadow"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-start z-50"
+  isOpen={selectedIndex !== null}
+  onRequestClose={() => setSelectedIndex(null)}
+  className="modal-content"
+  overlayClassName="ReactModal__Overlay"
+  closeTimeoutMS={300}
+>
+  {selectedImage && (
+    <div className="modal-image-wrapper">
+      <img src={selectedImage} alt="Forhåndsvisning" />
+
+      {/* Gull lukkeknapp */}
+      <button
+        className="modal-close"
+        onClick={() => setSelectedIndex(null)}
+        aria-label="Lukk bilde"
       >
-        <img src={selectedImage ?? ''} alt="forhåndsvisning" className="w-full rounded" />
-        <div className="flex justify-end mt-4">
-          <a
-            href={selectedImage ?? ''}
-            download
-            className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-          >
-            Last ned
-          </a>
-          <button
-            onClick={() => setSelectedImage(null)}
-            className="bg-gray-400 text-white px-4 py-2 rounded"
-          >
-            Lukk
-          </button>
-        </div>
-      </Modal>
+        <svg
+          className="gold-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          width="50"
+          height="50"
+        >
+          <path
+            d="M6 6L18 18M18 6L6 18"
+            stroke="#d4c25f"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+
+      {/* Navigasjon */}
+      <button
+        className="modal-button left"
+        onClick={() =>
+          setSelectedIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : prev))
+        }
+        aria-label="Forrige bilde"
+      >
+        <FaChevronLeft />
+      </button>
+
+      <button
+        className="modal-button right"
+        onClick={() =>
+          setSelectedIndex((prev) =>
+            prev !== null && prev < images.length - 1 ? prev + 1 : prev
+          )
+        }
+        aria-label="Neste bilde"
+      >
+        <FaChevronRight />
+      </button>
+    </div>
+  )}
+</Modal>
+
+
+
+
     </div>
   );
 }

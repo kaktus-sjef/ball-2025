@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import '../../styles/login.css'; // 🔁 juster path ved behov
+import '../../styles/login.css'; 
 
 export default function LoginPage() {
   const [password, setPassword] = useState('');

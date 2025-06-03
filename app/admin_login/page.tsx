@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import '../../styles/login.css';
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('');
@@ -17,24 +18,25 @@ export default function AdminLogin() {
     });
 
     if (res.ok) {
-      router.push('/admin'); // send videre til admin dashboard
+      router.push('/admin');
     } else {
       setError('Feil passord');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h2 className="text-xl font-semibold mb-4">Admin innlogging</h2>
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="border px-3 py-2 rounded mb-2"
-        placeholder="Admin passord"
-      />
-      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Logg inn</button>
-      {error && <p className="text-red-500 mt-2">{error}</p>}
-    </form>
+    <div className="login-wrapper">
+      <form onSubmit={handleSubmit} className="login-form">
+        <h2>Admin innlogging</h2>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Admin passord"
+        />
+        <button type="submit">Logg inn</button>
+        {error && <p className="error-message">{error}</p>}
+      </form>
+    </div>
   );
 }

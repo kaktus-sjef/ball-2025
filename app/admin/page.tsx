@@ -1,118 +1,103 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 
 export default function AdminPage() {
-  const [file, setFile] = useState<File | null>(null);
-  const [url, setUrl] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [authorized, setAuthorized] = useState(
-    typeof document !== 'undefined' && document.cookie.includes('admin_password=')
-  );
+  const [files, setFiles] = useState<FileList | null>(null);
+  const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
+  const [allImages, setAllImages] = useState<{ id: string; url: string }[]>([]);
+  const [uploading, setUploading] = useState(false);
 
-  const handleLogin = async () => {
-    try {
-      const res = await fetch('/api/admin-login', {
-        method: 'POST',
-        body: JSON.stringify({ password }),
-      });
+  // Hent alle bilder fra Firestore
+  useEffect(() => {
+    const fetchImages = async () => {
+      const snapshot = await getDocs(collection(db, 'images'));
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        url: doc.data().url,
+      }));
+      setAllImages(data);
+    };
+    fetchImages();
+  }, []);
 
-      if (res.ok) {
-        document.cookie = `admin_password=${password}; path=/`;
-        setAuthorized(true);
-        setError('');
-      } else {
-        setError('Feil passord');
-      }
-    } catch {
-      setError('Nettverksfeil eller serverfeil');
-    }
-  };
-
-  const uploadFile = async () => {
-    if (!file) return;
+  const uploadFiles = async () => {
+    if (!files || files.length === 0) return;
+    setUploading(true);
 
     const formData = new FormData();
-    formData.append('file', file);
+    Array.from(files).forEach((file) => formData.append('file', file));
 
     try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      for (const file of Array.from(files)) {
+        const form = new FormData();
+        form.append('file', file);
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText);
-      }
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: form,
+        });
 
-      const data = await res.json();
-      setUrl(data.url);
-      localStorage.setItem('lastUploadedUrl', data.url);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        alert('Opplasting feilet: ' + err.message);
-      } else {
-        alert('En ukjent feil oppstod under opplasting.');
+        const data = await res.json();
+        if (res.ok) {
+          setUploadedUrls((prev) => [...prev, data.url]);
+          setAllImages((prev) => [...prev, { url: data.url, id: 'midlertidig' }]);
+        } else {
+          console.error(data.error);
+        }
       }
+    } finally {
+      setUploading(false);
     }
   };
 
-  if (!authorized) {
-    return (
-      <div className="p-8 max-w-md mx-auto">
-        <h1 className="text-xl font-bold mb-4">Logg inn som admin</h1>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border px-3 py-2 rounded mb-4 w-full"
-          placeholder="Skriv inn passord"
-        />
-        <button
-          onClick={handleLogin}
-          className="bg-blue-600 text-white px-4 py-2 rounded w-full"
-        >
-          Logg inn
-        </button>
-        {error && <p className="text-red-500 mt-2">{error}</p>}
-      </div>
-    );
-  }
+  const deleteImage = async (url: string, id: string) => {
+    const res = await fetch('/api/delete-image', {
+      method: 'POST',
+      body: JSON.stringify({ url, id }),
+    });
+
+    if (res.ok) {
+      setAllImages(prev => prev.filter(img => img.id !== id));
+    } else {
+      const err = await res.json();
+      alert('Feil ved sletting: ' + err.error);
+    }
+  };
 
   return (
-    <div className="p-8 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Last opp bilde</h1>
+    <div className="p-6 max-w-4xl mx-auto text-white">
+      <h1 className="text-2xl font-bold mb-4">Adminpanel – Bildeopplasting</h1>
+
       <input
         type="file"
+        multiple
         accept="image/*"
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
+        onChange={(e) => setFiles(e.target.files)}
         className="mb-4"
       />
-      <br />
       <button
-        onClick={uploadFile}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
+        onClick={uploadFiles}
+        disabled={uploading}
+        className="bg-blue-600 text-white px-4 py-2 rounded"
       >
-        Last opp
+        {uploading ? 'Laster opp...' : 'Last opp'}
       </button>
 
-      {url && (
-        <div className="mt-6">
-          <p className="mb-2">Bildet ble lastet opp:</p>
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline"
-          >
-            {url}
-          </a>
-          <br />
-          <img src={url} alt="Lastet opp" className="max-w-md mt-4 rounded shadow" />
-        </div>
-      )}
+      <h2 className="text-lg mt-6 mb-2">Alle bilder:</h2>
+      <ul className="space-y-4">
+        {allImages.map(({ id, url }) => (
+          <li key={url} className="flex items-center gap-4 bg-[#111] p-2 rounded shadow">
+            <img src={url} alt="preview" className="w-12 h-12 object-cover rounded" style={{ maxWidth: '100px', maxHeight: '100px' }}/>
+            <a href={url} target="_blank" className="text-blue-400 break-all">{url}</a>
+            <button onClick={() => deleteImage(url, id)} className="text-red-500 font-bold ml-auto">
+              ✕
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
