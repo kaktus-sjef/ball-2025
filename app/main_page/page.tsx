@@ -53,15 +53,15 @@ export default function MainPage() {
 
   const selectedImage = selectedIndex !== null ? images[selectedIndex] : null;
 
-  const handleDownload = () => {
-    if (!selectedImage) return;
-    const link = document.createElement('a');
-    link.href = selectedImage;
-    link.download = selectedImage.split('/').pop() || 'bilde.png';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+ // const handleDownload = () => {
+ //   if (!selectedImage) return;
+ //   const link = document.createElement('a');
+ //   link.href = selectedImage;
+  //  link.download = selectedImage.split('/').pop() || 'bilde.png';
+  //  document.body.appendChild(link);
+  //  link.click();
+  //  document.body.removeChild(link);
+ // };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -195,6 +195,7 @@ export default function MainPage() {
     </div>
   )}
 </Modal>
+
 
 
 

@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs} from 'firebase/firestore';
 
 export default function AdminPage() {
   const [files, setFiles] = useState<FileList | null>(null);
-  const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
+  const [,setUploadedUrls] = useState<string[]>([]);
   const [allImages, setAllImages] = useState<{ id: string; url: string }[]>([]);
   const [uploading, setUploading] = useState(false);
 

@@ -14,8 +14,12 @@ export async function POST(req: Request) {
     await deleteDoc(doc(db, 'images', id));
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    console.error('Feil ved sletting:', err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+} catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error('Feil ved sletting:', err.message);
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+    return NextResponse.json({ error: 'Ukjent feil' }, { status: 500 });
   }
+  
 }
