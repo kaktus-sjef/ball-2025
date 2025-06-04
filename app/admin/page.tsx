@@ -3,49 +3,48 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { uploadImagePair } from '@/lib/upload';
 
 export default function AdminPage() {
-  const [uploading, setUploading] = useState(false);
-  const [allImages, setAllImages] = useState<{ id: string; url: string }[]>([]);
+  const [allImages, setAllImages] = useState<{ id: string; url: string; originalUrl: string }[]>([]);
+  const [syncing, setSyncing] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
 
-  // Hent alle bilder ved lasting
   useEffect(() => {
-    const fetchImages = async () => {
-      const snapshot = await getDocs(collection(db, 'images'));
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        url: doc.data().url,
-      }));
-      setAllImages(data);
-    };
     fetchImages();
   }, []);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = e.target.files;
-    if (!fileList || fileList.length === 0) return;
+  const fetchImages = async () => {
+    const snapshot = await getDocs(collection(db, 'images'));
+    const data = snapshot.docs.map(doc => ({
+      id: doc.id,
+      url: doc.data().previewUrl, // <--- Bytter navn her
+      originalUrl: doc.data().originalUrl
+    }));    
+    setAllImages(data);
+  };
+  
 
-    setUploading(true);
+  const syncImages = async () => {
+    setSyncing(true);
+    setStatus(null);
 
     try {
-      for (const file of Array.from(fileList)) {
-        try {
-          const result = await uploadImagePair(file);
-          console.log('Lastet opp:', result);
+      const res = await fetch('/api/sync-new-images', {
+        method: 'POST',
+      });
 
-          setAllImages(prev => [
-            ...prev,
-            { url: result.previewUrl, id: 'midlertidig-' + Math.random().toString() },
-          ]);
-        } catch (err) {
-          console.error('Feil med fil:', file.name, err);
-        }
+      const data = await res.json();
+      if (res.ok) {
+        setStatus('Synkronisering fullført!');
+        await fetchImages();
+      } else {
+        setStatus('Feil: ' + (data.error || 'Ukjent feil'));
       }
+    } catch (err) {
+      console.error(err);
+      setStatus('Klarte ikke å kontakte serveren.');
     } finally {
-      setUploading(false);
-      // Nullstill inputfeltet slik at samme fil kan velges på nytt om ønskelig
-      e.target.value = '';
+      setSyncing(false);
     }
   };
 
@@ -65,29 +64,36 @@ export default function AdminPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto text-white">
-      <h1 className="text-2xl font-bold mb-4">Adminpanel – Bildeopplasting</h1>
+      <h1 className="text-2xl font-bold mb-4">Adminpanel – Bilder</h1>
 
-      <input
-        type="file"
-        multiple
-        accept="image/*"
-        onChange={handleFileChange}
-        className="mb-4"
-      />
+      <button
+        onClick={syncImages}
+        disabled={syncing}
+        className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
+      >
+        {syncing ? 'Synkroniserer...' : 'Synkroniser nye bilder'}
+      </button>
 
-      {uploading && <p className="text-yellow-400 mb-4">Laster opp bilder...</p>}
+      {status && (
+        <p className="mt-2 text-sm" style={{ color: status.includes('fullført') ? 'lime' : 'red' }}>
+          {status}
+        </p>
+      )}
 
       <h2 className="text-lg mt-6 mb-2">Alle bilder:</h2>
       <ul className="space-y-4">
-        {allImages.map(({ id, url }) => (
-            <li key={id} className="flex items-center gap-4 bg-[#111] p-2 rounded shadow">
+        {allImages.map(({ id, url, originalUrl }) => (
+          <li key={id} className="flex items-center gap-4 bg-[#111] p-2 rounded shadow">
             <img
               src={url}
               alt="preview"
               className="w-12 h-12 object-cover rounded"
               style={{ maxWidth: '100px', maxHeight: '100px' }}
             />
-            <a href={url} target="_blank" className="text-blue-400 break-all">{url}</a>
+            <div className="flex flex-col">
+              <a href={url} target="_blank" className="text-blue-400 break-all">Preview</a>
+              <a href={originalUrl} target="_blank" className="text-green-400 break-all">Original</a>
+            </div>
             <button onClick={() => deleteImage(url, id)} className="text-red-500 font-bold ml-auto">
               ✕
             </button>

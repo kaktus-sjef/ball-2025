@@ -6,7 +6,6 @@ import Modal from 'react-modal';
 import '../../styles/main.css';
 import { useRouter } from 'next/navigation';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-//import Image from 'next/image';
 
 export default function MainPage() {
   const [images, setImages] = useState<{ id: string; previewUrl: string; originalUrl: string }[]>([]);
@@ -36,13 +35,21 @@ export default function MainPage() {
   useEffect(() => {
     const fetchImages = async () => {
       const querySnapshot = await getDocs(collection(db, 'images'));
-      const imageList = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        previewUrl: doc.data().url,
-        originalUrl: doc.data().originalUrl,
-      }));      
+      const imageList = querySnapshot.docs
+        .map(doc => {
+          const data = doc.data();
+          if (!data.previewUrl || !data.originalUrl) return null; // Hopp over ugyldige
+          return {
+            id: doc.id,
+            previewUrl: data.previewUrl,
+            originalUrl: data.originalUrl,
+          };
+        })
+        .filter((img): img is { id: string; previewUrl: string; originalUrl: string } => img !== null); // Type guard
+  
       setImages(imageList);
     };
+  
     fetchImages();
   }, []);
   
@@ -98,22 +105,25 @@ export default function MainPage() {
       <main className="p-6 max-w-6xl mx-auto">
         <div className="gallery">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-          {images.map((image, i) => (
-            <div
-            key={image.id}
-            className="relative w-full max-w-[400px] h-[400px] bg-white overflow-hidden rounded-lg shadow hover:scale-105 transition-transform duration-200"
-            onClick={() => setSelectedIndex(i)}
-          >
-            <img
-              src={image.previewUrl}
-              alt={`bilde-${i}`}
-              className="gallery-img"
-              onClick={() => setSelectedIndex(i)}
-            />
-
-          </div>
-                 
-          ))}
+            {images.map((image, i) => (
+              <div
+                key={image.id}
+                className="relative w-full max-w-[400px] h-[400px] bg-white overflow-hidden rounded-lg shadow hover:scale-105 transition-transform duration-200"
+                onClick={() => setSelectedIndex(i)}
+              >
+                {image.previewUrl ? (
+                  <img
+                    src={image.previewUrl}
+                    alt={`bilde-${i}`}
+                    className="gallery-img"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-red-500 bg-gray-100">
+                    Mangler preview
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </main>
@@ -128,9 +138,12 @@ export default function MainPage() {
       >
         {selectedImage && (
           <div className="modal-image-wrapper">
-            <img src={selectedImage.previewUrl} alt="Forhåndsvisning" className="modal-preview" />
+            {selectedImage.previewUrl ? (
+              <img src={selectedImage.previewUrl} alt="Forhåndsvisning" className="modal-preview" />
+            ) : (
+              <p className="text-red-500">Forhåndsvisning mangler</p>
+            )}
 
-            {/* Last ned original */}
             <a
               href={selectedImage.originalUrl}
               download
@@ -141,7 +154,6 @@ export default function MainPage() {
               Trykk her for å laste ned bilde med bedre oppløsning
             </a>
 
-            {/* Gull lukkeknapp */}
             <button
               className="modal-close"
               onClick={() => setSelectedIndex(null)}
@@ -152,7 +164,6 @@ export default function MainPage() {
               </svg>
             </button>
 
-            {/* Navigasjon */}
             <button className="modal-button left" onClick={() =>
               setSelectedIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : prev))
             } aria-label="Forrige bilde">
