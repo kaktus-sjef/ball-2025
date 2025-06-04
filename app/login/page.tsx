@@ -29,7 +29,9 @@ export default function LoginPage() {
   return (
     <div className="login-wrapper">
       <form onSubmit={handleSubmit} className="login-form">
-        <h2>Skriv inn passord for å få tilgang</h2>
+        <h2>Ball-2025</h2>
+        <h3>Skriv passord for tilgang</h3>
+        <p>PS. Funker bedre på pc...</p>
         <input className="input"
           type="password"
           placeholder="Passord"

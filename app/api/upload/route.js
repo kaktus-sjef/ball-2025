@@ -5,36 +5,53 @@ import { db, collection, addDoc, serverTimestamp } from '@/lib/firebase';
 export async function POST(request) {
   try {
     const formData = await request.formData();
-    const file = formData.get('file');
+    const original = formData.get('original');
+    const preview = formData.get('preview');
 
-    if (!file) {
-      console.log('Ingen fil funnet i request');
-      return NextResponse.json({ error: 'Ingen fil sendt' }, { status: 400 });
+    if (!original || typeof original === 'string' || !preview || typeof preview === 'string') {
+      return NextResponse.json({ error: 'Ugyldige filer' }, { status: 400 });
     }
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const filename = file.name;
+    const uploadFile = async (file, pathPrefix) => {
+      const generateUniqueName = (originalName) => {
+        const ext = originalName.split('.').pop();
+        const base = originalName.replace(/\.[^/.]+$/, '');
+        const unique = `${base}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        return `${unique}.${ext}`;
+      };
+      const filename = `${pathPrefix}/${generateUniqueName(file.name)}`;      
+      const blob = bucket.file(filename);
+      const writeStream = blob.createWriteStream({
+        metadata: { contentType: file.type },
+        resumable: false,
+      });
 
-    const blob = bucket.file(filename);
+      const reader = file.stream().getReader();
+      const pump = async () => {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          writeStream.write(value);
+        }
+        writeStream.end();
+      };
 
-    await blob.save(buffer, {
-      metadata: {
-        contentType: file.type,
-      },
-    });
+      await pump();
+      return `https://storage.googleapis.com/${bucket.name}/${filename}`;
+    };
 
-    
-    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+    const originalUrl = await uploadFile(original, 'originals');
+    const previewUrl = await uploadFile(preview, 'previews');
 
     await addDoc(collection(db, 'images'), {
-      url: publicUrl,
+      url: previewUrl,
+      originalUrl,
       createdAt: serverTimestamp(),
     });
 
-    return NextResponse.json({ url: publicUrl });
+    return NextResponse.json({ previewUrl, originalUrl });
   } catch (err) {
-    console.error('Feil i route handler:', err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error('Feil ved opplasting:', err);
+    return NextResponse.json({ error: 'Intern feil' }, { status: 500 });
   }
 }

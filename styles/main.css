@@ -134,24 +134,23 @@ body {
 
 .grid {
   display: grid;
-  background-color: #000;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
+  background-color: #000;
   border-radius: 10px;
   box-shadow: 0px 5px 10px 10px rgba(249, 201, 55, 0.2);
-
 }
 
 .grid img {
   width: 100%;
-  height: 240px;
+  height: 360px;
   object-fit: cover;
   border-radius: 12px;
   cursor: pointer;
-  border: 2px solid #f9c93733;
+  border: 4px solid #f9c83756;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -161,31 +160,6 @@ body {
 }
 
 
-
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.5rem;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.grid img {
-  width: 100%;
-  height: 240px;
-  object-fit: cover;
-  border-radius: 12px;
-  cursor: pointer;
-  border: 2px solid #f9c93733;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.grid img:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 12px #f9c93799;
-}
 
 /* Fade/dropdown animation */
 @keyframes fadeInDrop {
@@ -202,8 +176,8 @@ body {
 /* Modal overlay styling */
 .ReactModal__Overlay {
   background-color: rgba(0, 0, 0, 0) !important;
-  height: 50rem;
-  width: 50rem;
+  height: 60rem;
+  width: 80%;
   margin-left: auto;
   margin-right: auto;
   display: flex;
@@ -227,8 +201,9 @@ body {
 /* Modal wrapper */
 .modal-content {
   position: relative;
-  width: 500px;
-  height: 500px;
+  width: 150vw;
+  height: auto;
+  max-width: 1100px;
   background: transparent;
   border: none;
   outline: none;
@@ -239,11 +214,14 @@ body {
   z-index: 10000;
 }
 
+
 .modal-image-wrapper {
   position: relative;
-  width: 500px;
-  height: 500px;
+  width: 100%;
+  height: auto;
+  max-height: 90vh;
 }
+
 
 .modal-image-wrapper img {
   width: 100%;
@@ -295,6 +273,20 @@ body {
   z-index: 10001;
 }
 
+.download-button {
+  color: #b5a234;
+  font-weight: bold;
+  margin-top: 1rem;
+  display: block;
+  text-align: center;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.download-button:hover {
+  color: #f9c937;
+}
+
 /* Gull-glød på SVG */
 .gold-icon {
   
@@ -333,4 +325,16 @@ body.modal-open .gallery {
   .header-container img {
     height: 40px;
   }
+ 
+    .grid {
+      grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+      padding: 1rem;
+      gap: 1rem;
+    }
+  
+    .grid img {
+      height: auto;
+    }
+  
+  
 }
