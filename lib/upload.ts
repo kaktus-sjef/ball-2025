@@ -15,6 +15,7 @@ export async function uploadImagePair(file: File) {
     method: 'POST',
     body: formData,
   });
+  
 
   if (!res.ok) throw new Error('Feil ved opplasting');
 
