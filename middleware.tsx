@@ -2,14 +2,14 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const encodedPath = request.nextUrl.pathname;
-  const pathname = decodeURIComponent(encodedPath); // sikrer mot %2f
+  const rawPath = request.nextUrl.pathname;
+  const normalizedPath = normalizePath(rawPath); // renser og sikrer mot triksing
 
   const mainPass = request.cookies.get('main_password')?.value;
   const adminPass = request.cookies.get('admin_password')?.value;
 
-  const isMainPage = pathname.startsWith('/main_page');
-  const isAdminPage = pathname.startsWith('/admin');
+  const isMainPage = normalizedPath.startsWith('/main_page');
+  const isAdminPage = normalizedPath.startsWith('/admin');
 
   if (isMainPage && mainPass !== process.env.MAIN_PAGE_PASSWORD) {
     return NextResponse.redirect(new URL('/login', request.url));
@@ -22,13 +22,20 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
+function normalizePath(path: string): string {
+  try {
+    // Fjerner dobbelskråstreker og dekoder URL-komponenter
+    const decoded = decodeURIComponent(path);
+    return decoded.replace(/\/{2,}/g, '/');
+  } catch (err) {
+    // Hvis noen prøver noe rart som %E0 osv., fallback
+    return '/';
+  }
+}
+
 export const config = {
   matcher: [
-    '/main_page',
-    '/main_page/',
     '/main_page/:path*',
-    '/admin',
-    '/admin/',
     '/admin/:path*',
   ],
 };
