@@ -1,11 +1,19 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { bucket } from '@/lib/storage';
 import { db, collection, addDoc, serverTimestamp } from '@/lib/firebase';
+import Busboy from 'busboy'; // ✅ Bruk moderne import
 
 export const config = {
   api: {
     bodyParser: false, // viktig for store filer
   },
+};
+
+type Upload = {
+  fieldname: string;
+  data: Buffer;
+  mime: string;
+  filename: string;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -14,33 +22,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const busboy = require('busboy');
-    const bb = busboy({ headers: req.headers });
-    const uploads: { fieldname: string, data: Buffer, mime: string, filename: string }[] = [];
+    const bb = Busboy({ headers: req.headers });
+    const uploads: Upload[] = [];
 
     bb.on(
-        'file',
-        (
-          fieldname: string,
-          file: NodeJS.ReadableStream,
-          filename: string,
-          mimetype: string
-        ) => {
-      
-      const buffers: Buffer[] = [];
-      file.on('data', (data: Buffer) => buffers.push(data));
-      file.on('end', () => {
-        uploads.push({
-          fieldname,
-          data: Buffer.concat(buffers),
-          mime: mimetype,
-          filename,
+      'file',
+      (
+        fieldname: string,
+        file: NodeJS.ReadableStream,
+        filename: string,
+        encoding: string, // 👈 Trengs pga type-signatur
+        mimetype: string
+      ) => {
+        const buffers: Buffer[] = [];
+        file.on('data', (data: Buffer) => buffers.push(data));
+        file.on('end', () => {
+          uploads.push({
+            fieldname,
+            data: Buffer.concat(buffers),
+            mime: mimetype,
+            filename,
+          });
         });
-      });
-    });
+      }
+    );
 
     bb.on('finish', async () => {
-      const result: any = {};
+      const result: Record<string, string> = {}; // ✅ Ikke bruk `any`
+
       for (const upload of uploads) {
         const uniqueName = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${upload.filename}`;
         const path = upload.fieldname === 'original' ? 'originals' : 'previews';
