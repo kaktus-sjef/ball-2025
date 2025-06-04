@@ -6,7 +6,7 @@ import Modal from 'react-modal';
 import '../../styles/main.css';
 import { useRouter } from 'next/navigation';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import Image from 'next/image';
+//import Image from 'next/image';
 
 export default function MainPage() {
   const [images, setImages] = useState<{ id: string; previewUrl: string; originalUrl: string }[]>([]);

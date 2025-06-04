@@ -1,6 +1,8 @@
 'use client';
 import React, { useEffect } from 'react';
 import Modal from 'react-modal';
+import { Analytics } from "@vercel/analytics/next";
+
 
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -21,7 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   />
 </head>
 
-      <body>{children}</body>
+      <body>{children}
+      <Analytics />
+      </body>
     </html>
   );
 }
