@@ -8,7 +8,6 @@ export async function POST(request: Request) {
     const original = formData.get('original');
     const preview = formData.get('preview');
 
-    // Sjekk at begge er av type File (fra DOM, ikke Node)
     if (!(original instanceof File) || !(preview instanceof File)) {
       return NextResponse.json({ error: 'Ugyldige filer' }, { status: 400 });
     }
