@@ -1,40 +1,19 @@
-import { IncomingForm } from 'formidable';
+import { NextResponse } from 'next/server';
 import { bucket } from '@/lib/storage';
 import { db, collection, addDoc, serverTimestamp } from '@/lib/firebase';
-import { NextApiRequest, NextApiResponse } from 'next';
-import fs from 'fs';
 
-export const config = {
-  api: {
-    bodyParser: false,
-    sizeLimit: '100mb', // Øker maks tillatt størrelse
-  },
-};
-
-function parseForm(req: NextApiRequest): Promise<{ fields: any; files: any }> {
-  return new Promise((resolve, reject) => {
-    const form = new IncomingForm({ keepExtensions: true, multiples: false });
-    form.parse(req, (err, fields, files) => {
-      if (err) reject(err);
-      else resolve({ fields, files });
-    });
-  });
-}
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') return res.status(405).end('Method Not Allowed');
-
+export async function POST(request: Request) {
   try {
-    const { files } = await parseForm(req);
+    const formData = await request.formData();
+    const original = formData.get('original');
+    const preview = formData.get('preview');
 
-    const original = files.original;
-    const preview = files.preview;
-
-    if (!original || !preview) {
-      return res.status(400).json({ error: 'Ugyldige filer' });
+    // Sjekk at begge er av type File (fra DOM, ikke Node)
+    if (!(original instanceof File) || !(preview instanceof File)) {
+      return NextResponse.json({ error: 'Ugyldige filer' }, { status: 400 });
     }
 
-    const uploadFile = async (file: any, pathPrefix: string) => {
+    const uploadFile = async (file: File, pathPrefix: string): Promise<string> => {
       const generateUniqueName = (originalName: string) => {
         const ext = originalName.split('.').pop();
         const base = originalName.replace(/\.[^/.]+$/, '');
@@ -42,21 +21,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return `${unique}.${ext}`;
       };
 
-      const filename = `${pathPrefix}/${generateUniqueName(file.originalFilename)}`;
+      const filename = `${pathPrefix}/${generateUniqueName(file.name)}`;
       const blob = bucket.file(filename);
 
       const writeStream = blob.createWriteStream({
-        metadata: { contentType: file.mimetype },
+        metadata: { contentType: file.type },
         resumable: false,
       });
 
-      const readStream = fs.createReadStream(file.filepath);
-      await new Promise((resolve, reject) => {
-        readStream.pipe(writeStream)
-          .on('finish', resolve)
-          .on('error', reject);
-      });
+      const reader = file.stream().getReader();
+      const pump = async () => {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          writeStream.write(value);
+        }
+        writeStream.end();
+      };
 
+      await pump();
       return `https://storage.googleapis.com/${bucket.name}/${filename}`;
     };
 
@@ -69,9 +52,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       createdAt: serverTimestamp(),
     });
 
-    return res.status(200).json({ previewUrl, originalUrl });
+    return NextResponse.json({ previewUrl, originalUrl });
   } catch (err) {
     console.error('Feil ved opplasting:', err);
-    return res.status(500).json({ error: 'Intern feil ved opplasting' });
+    return NextResponse.json({ error: 'Intern feil' }, { status: 500 });
   }
 }
