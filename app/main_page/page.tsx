@@ -18,6 +18,10 @@ export default function MainPage() {
     router.push('/admin_login');
     setMenuOpen(false);
   };
+  const goToHelp = () => {
+    alert('Slik laster du ned bildet:\n\n1. Klikk på bildet du ønsker å laste ned i galleriet.\n\n2. Trykk på "Last ned"-lenken under bildet.\n\n3. Vent på at bildet laster inn (kan ta litt tid).\n\n4. På PC: høyreklikk på bildet og velg "Last ned" eller "Lagre bildet som".\n\n5. NB! På Mac: du kan ha satt høyreklikk (sekundærklikk) til en annen innstilling.\n--5.1. Om du ikke husker innstillingen kan du gå under "Mouse" eller "Trackpad" i System Settings og se hva du har satt secondary click som.\n\n6. På mobil: hold inne på bildet og velg "Last ned" eller "Lagre bilde".');
+    setMenuOpen(false);
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -38,21 +42,20 @@ export default function MainPage() {
       const imageList = querySnapshot.docs
         .map(doc => {
           const data = doc.data();
-          if (!data.previewUrl || !data.originalUrl) return null; // Hopp over ugyldige
+          if (!data.previewUrl || !data.originalUrl) return null;
           return {
             id: doc.id,
             previewUrl: data.previewUrl,
             originalUrl: data.originalUrl,
           };
         })
-        .filter((img): img is { id: string; previewUrl: string; originalUrl: string } => img !== null); // Type guard
-  
+        .filter((img): img is { id: string; previewUrl: string; originalUrl: string } => img !== null);
+
       setImages(imageList);
     };
-  
+
     fetchImages();
   }, []);
-  
 
   useEffect(() => {
     if (selectedIndex !== null) {
@@ -86,6 +89,7 @@ export default function MainPage() {
             </button>
             {menuOpen && (
               <div className="dropdown-content">
+                <button onClick={goToHelp}>Hjelp</button>
                 <button onClick={goToAdmin}>Admin-side</button>
               </div>
             )}
@@ -138,21 +142,19 @@ export default function MainPage() {
       >
         {selectedImage && (
           <div className="modal-image-wrapper">
-            {selectedImage.previewUrl ? (
-              <img src={selectedImage.previewUrl} alt="Forhåndsvisning" className="modal-preview" />
-            ) : (
-              <p className="text-red-500">Forhåndsvisning mangler</p>
-            )}
+            <img src={selectedImage.previewUrl} alt="Forhåndsvisning" className="modal-preview" />
 
             <a
               href={selectedImage.originalUrl}
-              download
               target="_blank"
               rel="noopener noreferrer"
               className="download-button"
             >
-              Trykk her for å laste ned bilde med bedre oppløsning
+              Trykk her for å laste ned bildet med bedre oppløsning
             </a>
+            <p className="text-sm text-white mt-2 text-center">
+              <strong>!!</strong> Trenger du hjelp med å laste ned bildet? Trykk på <strong onClick={goToHelp} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Hjelp</strong> i menyen øverst til venstre. <strong>!!</strong>
+            </p>
 
             <button
               className="modal-close"
@@ -165,15 +167,13 @@ export default function MainPage() {
             </button>
 
             <button className="modal-button left" onClick={() =>
-              setSelectedIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : prev))
+              setSelectedIndex(prev => (prev !== null && prev > 0 ? prev - 1 : prev))
             } aria-label="Forrige bilde">
               <FaChevronLeft />
             </button>
 
             <button className="modal-button right" onClick={() =>
-              setSelectedIndex((prev) =>
-                prev !== null && prev < images.length - 1 ? prev + 1 : prev
-              )
+              setSelectedIndex(prev => (prev !== null && prev < images.length - 1 ? prev + 1 : prev))
             } aria-label="Neste bilde">
               <FaChevronRight />
             </button>
