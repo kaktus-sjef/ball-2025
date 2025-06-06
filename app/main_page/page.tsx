@@ -66,7 +66,9 @@ export default function MainPage() {
         .sort((a, b) => a.sortNumber - b.sortNumber); // sortér lavest til høyest
     
       // Fjern sortNumber før du setter i state
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       setImages(imageList.map(({ sortNumber, ...rest }) => rest));
+
     };
     
 
