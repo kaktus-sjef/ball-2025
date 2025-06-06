@@ -11,15 +11,22 @@ export default function MainPage() {
   const [images, setImages] = useState<{ id: string; previewUrl: string; originalUrl: string }[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const router = useRouter();
+  const [showPopup, setShowPopup] = useState(false);
+
 
   const toggleDropdown = () => setMenuOpen(!menuOpen);
+
   const goToAdmin = () => {
     router.push('/admin_login');
     setMenuOpen(false);
   };
+
   const goToHelp = () => {
-    alert('Slik laster du ned bildet:\n\n1. Klikk på bildet du ønsker å laste ned i galleriet.\n\n2. Trykk på "Last ned"-lenken under bildet.\n\n3. Vent på at bildet laster inn (kan ta litt tid).\n\n4. På PC: høyreklikk på bildet og velg "Last ned" eller "Lagre bildet som".\n\n5. NB! På Mac: du kan ha satt høyreklikk (sekundærklikk) til en annen innstilling.\n--5.1. Om du ikke husker innstillingen kan du gå under "Mouse" eller "Trackpad" i System Settings og se hva du har satt secondary click som.\n\n6. På mobil: hold inne på bildet og velg "Last ned" eller "Lagre bilde".');
+    alert(
+      'Slik laster du ned bildet:\n\n1. Klikk på bildet du ønsker å laste ned i galleriet.\n\n2. Trykk på "Last ned"-lenken under bildet.\n\n3. Vent på at bildet laster inn (kan ta litt tid).\n\n4. På PC: høyreklikk på bildet og velg "Last ned" eller "Lagre bildet som".\n\n5. NB! På Mac: du kan ha satt høyreklikk (sekundærklikk) til en annen innstilling.\n--5.1. Om du ikke husker innstillingen kan du gå under "Mouse" eller "Trackpad" i System Settings og se hva du har satt secondary click som.\n\n6. På mobil: hold inne på bildet og velg "Last ned" eller "Lagre bilde".'
+    );
     setMenuOpen(false);
   };
 
@@ -39,20 +46,29 @@ export default function MainPage() {
   useEffect(() => {
     const fetchImages = async () => {
       const querySnapshot = await getDocs(collection(db, 'images'));
+    
       const imageList = querySnapshot.docs
         .map(doc => {
           const data = doc.data();
           if (!data.previewUrl || !data.originalUrl) return null;
+    
+          const match = data.originalUrl.match(/MG_(\d+)\./);
+          const number = match ? parseInt(match[1], 10) : Number.MAX_SAFE_INTEGER;
+    
           return {
             id: doc.id,
             previewUrl: data.previewUrl,
             originalUrl: data.originalUrl,
+            sortNumber: number,
           };
         })
-        .filter((img): img is { id: string; previewUrl: string; originalUrl: string } => img !== null);
-
-      setImages(imageList);
+        .filter((img): img is { id: string; previewUrl: string; originalUrl: string; sortNumber: number } => img !== null)
+        .sort((a, b) => a.sortNumber - b.sortNumber); // sortér lavest til høyest
+    
+      // Fjern sortNumber før du setter i state
+      setImages(imageList.map(({ sortNumber, ...rest }) => rest));
     };
+    
 
     fetchImages();
   }, []);
@@ -62,12 +78,24 @@ export default function MainPage() {
       document.body.classList.add('modal-open');
     } else {
       document.body.classList.remove('modal-open');
+      window.scrollTo({ top: lastScrollY });
     }
   }, [selectedIndex]);
+
+  useEffect(() => {
+    const hasSeenPopup = localStorage.getItem('hasSeenGalleryPopup');
+    if (!hasSeenPopup) {
+      setShowPopup(true);
+      localStorage.setItem('hasSeenGalleryPopup', 'true');
+    }
+  }, []);
+  
+  
 
   const selectedImage = selectedIndex !== null ? images[selectedIndex] : null;
 
   return (
+    
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="site-header">
@@ -113,7 +141,17 @@ export default function MainPage() {
               <div
                 key={image.id}
                 className="relative w-full max-w-[400px] h-[400px] bg-white overflow-hidden rounded-lg shadow hover:scale-105 transition-transform duration-200"
-                onClick={() => setSelectedIndex(i)}
+                onClick={() => {
+                  if (selectedIndex === null) {
+                    setLastScrollY(window.scrollY);
+                    setTimeout(() => {
+                      window.scrollTo({ top: 230, behavior: 'smooth' }); // juster tallet her
+                    }, 0);
+                  }
+                  setSelectedIndex(i);
+                }}
+                
+                
               >
                 {image.previewUrl ? (
                   <img
@@ -132,6 +170,23 @@ export default function MainPage() {
         </div>
       </main>
 
+      {showPopup && (
+          <div className="popup-overlay">
+            <div className="popup-box">
+              <h2>Viktig info før du starter</h2>
+              <p>
+                Bildene du ser i galleriet er <strong>komprimerte og lav oppløsning</strong>. For å få originalbildet i full kvalitet,
+                må du <strong>klikke på bildet</strong> og deretter bruke <strong>lenken under bildet</strong> for å laste ned riktig versjon.
+              </p>
+              <p>
+                Hvis du har problemer med å laste ned bildet, kan du gå til <strong>menyen øverst til venstre</strong> og trykke på <strong>Hjelp</strong>.
+                Der finner du enkle instruksjoner.
+              </p>
+              <button onClick={() => setShowPopup(false)} className="popup-close-button">Skjønner</button>
+            </div>
+          </div>
+        )}
+
       {/* Modal */}
       <Modal
         isOpen={selectedIndex !== null}
@@ -139,10 +194,16 @@ export default function MainPage() {
         className="modal-content"
         overlayClassName="ReactModal__Overlay"
         closeTimeoutMS={300}
+        shouldCloseOnOverlayClick={false}
       >
         {selectedImage && (
           <div className="modal-image-wrapper">
-            <img src={selectedImage.previewUrl} alt="Forhåndsvisning" className="modal-preview" />
+            <img
+            src={selectedImage.previewUrl}
+            alt="Forhåndsvisning"
+            className="modal-preview-image"
+          />
+
 
             <a
               href={selectedImage.originalUrl}
@@ -153,12 +214,18 @@ export default function MainPage() {
               Trykk her for å laste ned bildet med bedre oppløsning
             </a>
             <p className="text-sm text-white mt-2 text-center">
-              <strong>!!</strong> Trenger du hjelp med å laste ned bildet? Trykk på <strong onClick={goToHelp} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Hjelp</strong> i menyen øverst til venstre. <strong>!!</strong>
+              <strong>!!</strong> Trenger du hjelp med å laste ned bildet? Trykk på{' '}
+              <strong onClick={goToHelp} style={{ cursor: 'pointer', textDecoration: 'underline' }}>
+                Hjelp
+              </strong>{' '}
+              i menyen øverst til venstre. <strong>!!</strong>
             </p>
 
             <button
               className="modal-close"
-              onClick={() => setSelectedIndex(null)}
+              onClick={() => {
+                setSelectedIndex(null);
+              }}
               aria-label="Lukk bilde"
             >
               <svg className="gold-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="50" height="50">

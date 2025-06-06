@@ -28,30 +28,51 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let synced = 0;
 
     for (const file of newFiles) {
-      const [data] = await file.download();
+      try {
+        const [data] = await file.download();
+        console.log('🔍 Filnavn:', file.name);
 
-      const compressedBuffer = await sharp(data)
+        const extension = file.name.split('.').pop()?.toLowerCase();
+
+        // Bare behandl kjente bildeformater
+        if (!['jpg', 'jpeg', 'png'].includes(extension || '')) {
+          console.warn(`⏭️ Hopper over unsupported filtype: ${file.name}`);
+          continue;
+        }
+
+        const image = sharp(data).rotate(); // forsøk å bruke EXIF først
+        const metadata = await image.metadata();
+
+        // Hvis det ikke finnes orientering, men bildet er "liggende" → roter manuelt
+        if (!metadata.orientation && metadata.width && metadata.width > metadata.height) {
+        image.rotate(90); // tving rotering til stående
+        }
+
+        const compressedBuffer = await image
         .resize({ width: 1200 })
         .jpeg({ quality: 70 })
         .toBuffer();
 
-      const previewName = file.name.replace('originals/', '');
-      const previewPath = `previews/${uuidv4()}_${previewName}`;
-      const previewFile = bucket.file(previewPath);
-      await previewFile.save(compressedBuffer, {
-        metadata: { contentType: 'image/jpeg' },
-      });
+        const previewName = file.name.replace('originals/', '');
+        const previewPath = `previews/${uuidv4()}_${previewName}`;
+        const previewFile = bucket.file(previewPath);
+        await previewFile.save(compressedBuffer, {
+          metadata: { contentType: 'image/jpeg' },
+        });
 
-      const previewUrl = `https://storage.googleapis.com/${bucket.name}/${previewPath}`;
-      const originalUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
+        const previewUrl = `https://storage.googleapis.com/${bucket.name}/${previewPath}`;
+        const originalUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
 
-      await addDoc(collection(db, 'images'), {
-        previewUrl,
-        originalUrl,
-        createdAt: serverTimestamp(),
-      });
+        await addDoc(collection(db, 'images'), {
+          previewUrl,
+          originalUrl,
+          createdAt: serverTimestamp(),
+        });
 
-      synced++;
+        synced++;
+      } catch (err) {
+        console.error(`❌ Feil ved behandling av ${file.name}:`, err);
+      }
     }
 
     return res.status(200).json({ message: `Sync fullført (${synced} nye bilder)` });
@@ -60,5 +81,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Intern feil ved sync' });
   }
 }
-
-//test
