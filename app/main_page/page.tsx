@@ -175,14 +175,17 @@ export default function MainPage() {
       {showPopup && (
           <div className="popup-overlay">
             <div className="popup-box">
-              <h2>Viktig info før du starter</h2>
+              <h2>!! Viktig info før du går videre !!</h2>
               <p>
-                Bildene du ser i galleriet er <strong>komprimerte og lav oppløsning</strong>. For å få originalbildet i full kvalitet,
-                må du <strong>klikke på bildet</strong> og deretter bruke <strong>lenken under bildet</strong> for å laste ned riktig versjon.
+                Bildene du ser i galleriet er <strong>komprimerte og har lav oppløsning</strong>. For å få originalbildet i full kvalitet,
+                må du <strong>klikke på bildet</strong> og deretter trykke på <strong>lenken under bildet</strong>. 
               </p>
               <p>
-                Hvis du har problemer med å laste ned bildet, kan du gå til <strong>menyen øverst til venstre</strong> og trykke på <strong>Hjelp</strong>.
-                Der finner du enkle instruksjoner.
+                Du vil bli tatt med til en ekstern side der du kan laste ned orginalbildet.
+              </p>
+              <p>
+                !! Hvis du har problemer med å laste ned bildet, kan du gå til <strong>menyen øverst til venstre</strong> og trykke på <strong>Hjelp</strong>.
+                Der finner du enkle instruksjoner. !!
               </p>
               <button onClick={() => setShowPopup(false)} className="popup-close-button">Skjønner</button>
             </div>
