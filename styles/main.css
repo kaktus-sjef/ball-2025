@@ -228,7 +228,7 @@ body {
 .ReactModal__Overlay {
   background-color: rgba(0, 0, 0, 0) !important;
   height: 80rem;
-  width: 80%;
+  width: 90%;
   margin-left: auto;
   margin-right: auto;
   display: flex;
@@ -252,7 +252,7 @@ body {
 /* Modal wrapper */
 .modal-content {
   position: relative;
-  width: 150vw;
+  width: auto;
   height: auto;
   max-width: 1100px;
   margin-top: -4%;
@@ -276,7 +276,7 @@ body {
 
 
 .modal-image-wrapper img {
-  width: auto;
+  width: 100%;
   max-height: 85vh;
   object-fit: contain;
   border-radius: 12px;
@@ -375,6 +375,10 @@ body.modal-open .gallery {
     font-size: 2.5rem;
   }
 
+  .header-container {
+    gap: 0rem;
+  }
+
   .header-container img {
     height: 40px;
   }
@@ -388,6 +392,78 @@ body.modal-open .gallery {
     .grid img {
       height: auto;
     }
-  
+    .ReactModal__Overlay,
+  .ReactModal__Overlay--after-open,
+  .ReactModal__Overlay--before-close {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    background-color: rgba(0, 0, 0, 0.85) !important;
+    opacity: 1 !important;
+    transition: background-color 0.4s ease, opacity 0.4s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+
+  /* Shrink the modal box to viewport width */
+  .modal-content {
+    width: auto;
+    max-width: 95vw;
+    margin: 0 auto;
+    margin-top: 2vh;          /* small push from top */
+    padding: 0;
+    background: transparent;
+    animation: none;          /* subtle on mobile */
+  }
+
+  /* Let the image take up almost all the height */
+  .modal-image-wrapper {
+    width: auto;
+    max-height: 80vh;
+    padding: 0 1rem;
+  }
+  .modal-image-wrapper img {
+    width: auto;
+    max-width: 100%;
+    max-height: 75vh;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 2px solid rgba(249, 201, 55, 0.2);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Move the close “X” into the visible viewport */
+  .modal-close {
+    position: absolute;
+    top: -5rem !important;
+    right: 1rem !important;
+    transform: none;
+    padding: 0.5rem;
+  }
+
+  /* Either hide or restyle the nav buttons for touch */
+  .modal-button {
+    display: none;  /* hide arrows on small screens */
+    /* if you prefer to keep them, you could instead do:
+       font-size: 1.5rem;
+       top: auto;
+       bottom: 1rem;
+       background: rgba(0,0,0,0.5);
+       padding: 0.5rem;
+    */
+  }
+
+  /* Tweak download link for easier tapping */
+  .download-button {
+    display: block;
+    font-size: 1rem;
+    margin: 1rem auto 0;
+    padding: 0.5rem 1rem;
+  }
   
 }
