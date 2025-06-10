@@ -12,6 +12,7 @@ export default function MainPage() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [swipeDirection, setSwipeDirection] = useState<'left'|'right'|''>('');
   const router = useRouter();
   const [showPopup, setShowPopup] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -97,9 +98,16 @@ export default function MainPage() {
     if (touchStartX === null) return;
     const deltaX = e.changedTouches[0].clientX - touchStartX;
     const threshold = 50; // min swipe avstand
-    if (deltaX > threshold) prevImage();
-    else if (deltaX < -threshold) nextImage();
+    if (deltaX > threshold) {
+      setSwipeDirection('right');
+      prevImage();
+    } else if (deltaX < -threshold) {
+      setSwipeDirection('left');
+      nextImage();
+    }
     setTouchStartX(null);
+    // fjern animasjon når den er ferdig
+    setTimeout(() => setSwipeDirection(''), 400);
   };
 
   const selectedImage = selectedIndex !== null ? images[selectedIndex] : null;
@@ -212,7 +220,7 @@ export default function MainPage() {
       >
         {selectedImage && (
           <div
-            className="modal-image-wrapper"
+            className={`modal-image-wrapper ${swipeDirection ? 'swipe-' + swipeDirection : ''}`}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >

@@ -276,7 +276,7 @@ body {
 
 
 .modal-image-wrapper img {
-  width: 100%;
+  width: auto;
   max-height: 85vh;
   object-fit: contain;
   border-radius: 12px;
@@ -357,6 +357,27 @@ body {
 body.modal-open .gallery {
   display: none;
 }
+
+/* Swipe bump-animasjoner */
+@keyframes swipeLeft {
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(-20px); }
+  100% { transform: translateX(0); }
+}
+@keyframes swipeRight {
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(20px); }
+  100% { transform: translateX(0); }
+}
+
+/* Når man swiper til venstre/høyre */
+.modal-image-wrapper.swipe-left {
+  animation: swipeLeft 0.4s ease-out;
+}
+.modal-image-wrapper.swipe-right {
+  animation: swipeRight 0.4s ease-out;
+}
+
 
 
 
@@ -465,5 +486,5 @@ body.modal-open .gallery {
     margin: 1rem auto 0;
     padding: 0.5rem 1rem;
   }
-  
+
 }
