@@ -61,6 +61,7 @@ export default function MainPage() {
         })
         .filter((img): img is { id: string; previewUrl: string; originalUrl: string; sortNumber: number } => img !== null)
         .sort((a, b) => a.sortNumber - b.sortNumber);
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
       setImages(imageList.map(({ sortNumber, ...rest }) => rest));
     };
     fetchImages();
