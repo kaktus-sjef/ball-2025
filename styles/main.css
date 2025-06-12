@@ -466,6 +466,7 @@ body.modal-open .gallery {
     right: 1rem !important;
     transform: none;
     padding: 0.5rem;
+    margin-top: 0.2rem;
   }
 
   /* Either hide or restyle the nav buttons for touch */
@@ -488,4 +489,8 @@ body.modal-open .gallery {
     padding: 0.2rem 1rem;
   }
 
+  .text-sm{
+    margin-top: 0.2rem;
+    margin-bottom: 0rem;
+  }
 }

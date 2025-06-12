@@ -2,12 +2,18 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import '../../styles/login.css'; 
+import '../../styles/login.css';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 export default function LoginPage() {
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+
+  const toggleShowPassword = () => {
+    setShowPassword(prev => !prev);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,14 +38,26 @@ export default function LoginPage() {
         <h2>Ball-2025</h2>
         <h3>Skriv passord for tilgang</h3>
         <p>PS. Funker bedre på pc...</p>
-        <input className="input"
-          type="password"
-          placeholder="Passord"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Logg inn</button>
         {error && <p className="error-message">{error}</p>}
+        <div className="input-wrapper">
+          <input
+            className="input"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Passord"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button
+            type="button"
+            className="show-password-btn"
+            onClick={toggleShowPassword}
+            aria-label={showPassword ? 'Skjul passord' : 'Vis passord'}
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </button>
+        </div>
+        <button type="submit">Logg inn</button>
+        
       </form>
     </div>
   );
