@@ -57,6 +57,11 @@ body {
   z-index: 1;            /* ligger over input-feltet */
 }
 
+.show-password-btn svg{
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
 .show-password-btn:hover,
 .show-password-btn:focus {
   color: #ffd700;
@@ -140,5 +145,8 @@ body {
   .login-form h3 {
     margin-bottom: 0.2rem;
   }
-
+  .show-password-btn svg{
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 }
