@@ -110,6 +110,24 @@ export default function MainPage() {
     setTimeout(() => setSwipeDirection(''), 400);
   };
 
+  const closeModal = () => {
+    const idx = selectedIndex;
+    setSelectedIndex(null);
+    setTimeout(() => {
+      if (idx !== null) {
+        const el = document.getElementById(`gallery-item-${idx}`);
+        if (el) {
+          // scroller det bildet helt til sentrum av viewport
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          // fallback til original scroll hvis noe går galt
+          window.scrollTo({ top: lastScrollY, behavior: 'smooth' });
+        }
+      }
+    }, 0);
+  };
+  
+
   const selectedImage = selectedIndex !== null ? images[selectedIndex] : null;
 
   return (
@@ -157,16 +175,15 @@ export default function MainPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
             {images.map((image, i) => (
               <div
+                id={`gallery-item-${i}`}
                 key={image.id}
                 className="relative w-full max-w-[400px] h-[400px] bg-white overflow-hidden rounded-lg shadow hover:scale-105 transition-transform duration-200"
                 onClick={() => {
-                  if (selectedIndex === null) {
-                    setLastScrollY(window.scrollY);
-                    setTimeout(() => {
-                      window.scrollTo({ top: 230, behavior: 'smooth' });
-                    }, 0);
-                  }
+                  /* ditt eksisterende: lagre scrollY, åpne modal */
+                  setLastScrollY(window.scrollY);
                   setSelectedIndex(i);
+                  /* scroll litt ned så modalen ikke vises under header */
+                  setTimeout(() => window.scrollTo({ top: 230, behavior: 'smooth' }), 0);
                 }}
               >
                 {image.previewUrl ? (
@@ -212,7 +229,7 @@ export default function MainPage() {
       {/* Modal */}
       <Modal
         isOpen={selectedIndex !== null}
-        onRequestClose={() => setSelectedIndex(null)}
+        onRequestClose={closeModal}
         className="modal-content"
         overlayClassName="ReactModal__Overlay"
         closeTimeoutMS={300}
@@ -249,7 +266,7 @@ export default function MainPage() {
             {/* Lukke-knapp */}
             <button
               className="modal-close"
-              onClick={() => setSelectedIndex(null)}
+              onClick={closeModal}
               aria-label="Lukk bilde"
             >
               <svg className="gold-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="50" height="50">

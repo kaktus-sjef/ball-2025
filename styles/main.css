@@ -439,7 +439,8 @@ body.modal-open .gallery {
     margin-top: 2vh;          /* small push from top */
     padding: 0;
     background: transparent;
-    animation: none;          /* subtle on mobile */
+    animation: none;   
+       /* subtle on mobile */
   }
 
   /* Let the image take up almost all the height */
@@ -451,7 +452,7 @@ body.modal-open .gallery {
   .modal-image-wrapper img {
     width: auto;
     max-width: 100%;
-    max-height: 75vh;
+    max-height: 65vh;
     object-fit: contain;
     border-radius: 8px;
     border: 2px solid rgba(249, 201, 55, 0.2);
@@ -461,7 +462,7 @@ body.modal-open .gallery {
   /* Move the close “X” into the visible viewport */
   .modal-close {
     position: absolute;
-    top: -5rem !important;
+    top: -4rem !important;
     right: 1rem !important;
     transform: none;
     padding: 0.5rem;
@@ -483,8 +484,8 @@ body.modal-open .gallery {
   .download-button {
     display: block;
     font-size: 1rem;
-    margin: 1rem auto 0;
-    padding: 0.5rem 1rem;
+    margin: 0.2rem auto 0;
+    padding: 0.2rem 1rem;
   }
 
 }
